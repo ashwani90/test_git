@@ -1,0 +1,46 @@
+
+Schema - r
+query - no
+index - no 
+having/where - no 
+
+
+
+users => id (primary key), userCode, userName, mobile, email, status, createdOn, createdBy, updatedOn, updatedBy;  
+
+one to many relationship;
+
+blogs => id, desc, image, createdOn, updatedOn;
+
+comments => id, userId, desc, createdOn, updatedON, createdBy;
+
+
+//query for particular user, get the total comments for blog posts created in last 5 days
+
+select comment.desc, comment.id, comment.createdOn FROM comment INNER JOIN user on user.id = comment.userId where user.id = '1' and  comment.createdOn > strtotime('-5 day');
+
+Problem 1:
+Two sum. Given a list of numbers and a number k. return number of pairs of two numbers from the list add up to k.  you can use additional space.
+
+For example: 
+
+    Input: [1,2,4,5,-1,7] and k of 6
+    Output: 3
+
+   since [1,5][2,4][-1,9]
+
+user
+id, name , email
+
+Order 
+id, total price, total discount, user_id
+
+OrderItem
+id, name , quantity, prices, order_id
+
+find users with <2 orders with 1 type item
+
+select count(orders.id) as orderCount from orders 
+ join users on orders.user_id = users.id
+ join Orderitem on OrderItem.order_id=orders.id 
+ group by orders.id,orderItem.id having orderCount<2 and count(orderItem.id) = 1;

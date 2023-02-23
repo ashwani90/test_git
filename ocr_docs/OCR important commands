@@ -1,0 +1,39 @@
+sudo systemctl restart celery_dev.worker{1..4}
+- to restart celery workers for dev env
+
+sudo -u www-data /media/data/www/mms/ocr.matmgt.com/.venv/bin/python /media/data/www/mms/ocr.matmgt.com/src/manage.py shell
+
+sudo -u www-data /media/data/www/mms/ocr.matmgt.com/.venv/bin/python /media/data/www/mms/ocr.matmgt.com/src/manage.py shell
+
+- run the shell for prod env
+
+rabbit MQ management
+http://52.129.118.36:15672/  admin   hm8GVJqprs9R28JZ
+
+names of celery services:
+sudo systemctl restart celery.ocr-dev2.matmgt.com.service
+/etc/systemd/system/celery.ocr.matmgt.com.service
+
+Everything is updated.
+Steps for stage:
+cd  /media/data/www/mms/ocr-dev2.matmgt.com/
+git pull
+sudo -u www-data /media/data/www/mms/ocr-dev2.matmgt.com/.venv/bin/python /media/data/www/
+mms/ocr-dev2.matmgt.com/src/manage.py migrate          (if needed)
+sudo -u www-data /media/data/www/mms/ocr-dev2.matmgt.com/.venv/bin/python /media/data/www/
+mms/ocr-dev2.matmgt.com/src/manage.py collectstatic    (if needed)
+touch src/ocr_matmgt/wsgi.py                                     (to restart the apache)
+sudo systemctl restart celery_dev.worker{1..2}         (to restart celery)
+For prod from time to time I'm saving templates:
+git add templates/ po_ack_templates/
+git commit -m 'templates changes'
+git push
+To update prod:
+cd  /media/data/www/mms/ocr.matmgt.com/
+git pull
+sudo -u www-data /media/data/www/mms/ocr.matmgt.com/.venv/bin/python /media/data/www/
+mms/ocr.matmgt.com/src/manage.py migrate          (if needed)
+sudo -u www-data /media/data/www/mms/ocr.matmgt.com/.venv/bin/python /media/data/www/
+mms/ocr.matmgt.com/src/manage.py collectstatic    (if needed)
+touch src/ocr_matmgt/wsgi.py                                     (to restart the apache)
+sudo systemctl restart celery.worker{1..2}         (to restart celery)

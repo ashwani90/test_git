@@ -1,0 +1,422 @@
+
+
+Explain Select * from some_table;
+
+Explain meaning demystified -> 
+
+id -> it is the sequential identifier of the select query being ran within our query
+select_type -> Simple -> simple query without any subquery or unions
+      primary -> select is in the outmost query or with the join
+      derived -> select query is a subquery within the from tag of the query
+      subquery -> first select is in the subquery
+      dependent subquery -> a query which is dependent on the outer subquery
+      uncacheable query -> a query which is not cacheable
+      union -> the select is the second or the later query in the union query
+      dependent union -> the second query is dependent on the outer query
+      union result -> select is a result of the union
+table -> the table name from which the data is fetched
+type -> mysql joins the tables used
+      system -> the table has one or zero column
+      const -> the table only scans the given index and there is only one matching record to our condition.
+      columns value can be considered as constant
+      eq_ref -> all indexes are being used either the join is on the primary id or unique not null value. 
+      ref -> all columns of the index are scanned and then based on that records are fetched. generally occurs when where condition is = <=>.
+      fulltext -> the join uses the fulltext index of the table
+      ref_or_null -> same as row but also contains the null values for the column
+      index_merge -> will tell that a number of indexes are used
+      unique_subquery -> a subquery only returns a single record and uses the primary key
+      index_subquery -> same as above just returns multiple records.
+      range -> the index is run for a range of values within the specific range
+      index -> the whole index tree is searched and then result is fetched
+      all – the entire table is scanned to find matching rows for the join. This is the worst join type and usually indicates the lack of appropriate indexes on the table.
+possible_keys -> shows the keys that can be used by MySQL to find rows from the table, though they may or may not be used in practice. In fact, this column can often help in optimizing queries since if the column is NULL, it indicates no relevant indexes could be found.
+
+key -> used keys
+key_len -> length of the key that is being used
+ref -> Shows the columns or constants that are compared to the index named in the key column. MySQL will either pick a constant value to be compared or a column itself based on the query execution plan. You can see this in the example given below.
+rows -> number of rows scanned
+Extra – contains additional information regarding the query execution plan. Values such as “Using temporary”, “Using filesort”, etc. in this column may indicate a troublesome query. 
+You can also add the keyword EXTENDED after EXPLAIN in your query and MySQL will show you additional information about the way it executes the query. To see the information, follow your EXPLAIN query with SHOW WARNINGS. 
+
+
+
+invoice_number 
+where invoice_number 
+
+5 crores 
+
+
+Backend Code Review Feedback
+
+- Please do not write queries in loop.
+- try to minimize number of queries executed in api (use triggers or stored procedure)
+- Run query analyse and see number of rows your query is scanning for query performance
+
+Controllers
+- seeing lot of commented code (S)
+- Thorough comments (+)
+- Its always good idea to keep transaction out of controllers (S)
+- Avoid directly calling model from controller (S)
+- Keeps Controller light (Example BatchController)
+- Do all the request validation using Requests (+)
+
+- Usage of jobs. See if we can move more process to jobs (+)
+
+Models
+- if query becomes long and complex either use SP or go for a raw query and analyse (S)
+- EnrichmentUtility -> setInvoiceAndPOProperties -> we can create constants file and do the assignment operation in a loop. (S)
+- 
+
+
+
+FE Review 
+
+
+
+Hi,
+
+Please find the Status Update for 10/26/2022.
+
+Work Done Today:
+
+Ashwani:
+
+- Work on MMS-13167
+- Work on create queries for db task
+- Sync with team for issues
+- Meet with Richard and team
+- Work on local agent api changes
+
+Todo
+- Work on assigned tickets
+
+Ayushi
+
+- Worked on Enrichment | Items | To notify a user about difference between "Qty" and "Open Received Qty" (FE change)
+- Worked on FE Optimisations task.
+- Met with Oleg and team for daily meeting
+
+Chandan:
+
+-  Met with Asha for PI lumpsum import file issue.
+-  Worked on FE optimization changes
+-  Met with oleg and team for Daily meeting
+
+Asha:
+
+- Met with Chandan to fix issues with ticket#13243.
+- Met with Oleg and team for daily meeting.
+- Met with Steve and team for discussion on open issues.
+- Worked on ticket#13167, updating API to enable user to update ERP_NOTES.
+- Working on ticket#12910: BE changes to update PO API calls.
+- Met with Sib and Ashwani to discuss on the tables to be indexed.
+
+Sib:
+
+- Completed and test the changes for ticket #13227.
+- Met with Allan, Ashwani for DB optimization.
+- Met with Oleg for the daily meeting.
+- Met with Steve for the discussion about export lines without validation checks.
+- Met with Ashwani and Asha for the DB indexing.
+- Investigate and fixed the issue reported by lorna.
+
+Work Planned Next:
+
+Ashwani
+
+   - Work on assigned tickets.
+
+Ayushi
+
+   - Will be working on priority tickets assigned.
+
+
+Chandan:
+
+   - Will be working on priority tickets assigned.
+
+Asha:
+
+    - Work on assigned tickets.
+
+Sib:
+   
+    - Work on assigned tickets.
+
+Thanks & Regards,
+- Asha.
+
+
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Batch_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Batch_Data
+            ,FILENAME = 'H:\MSSQL\DATA\Batch_Data\Batch_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Batch_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Batch_Index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Batch_Index
+            ,FILENAME = 'J:\MSSQL\INDEX\Batch_Index\Batch_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Batch_Index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Batch_Invoices_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Batch_Invoices_Data
+            ,FILENAME = 'H:\MSSQL\DATA\Batch_Invoices_Data\Batch_Invoices_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Batch_Invoices_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Batch_Invoices_Index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Batch_Invoices_Index
+            ,FILENAME = 'J:\MSSQL\INDEX\Batch_Invoices_Index\Batch_Invoices_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Batch_Invoices_Index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Branch_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Branch_Data
+            ,FILENAME = 'I:\MSSQL\DATA\Branch_Data\Branch_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Branch_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Branch_Index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Branch_Index
+            ,FILENAME = 'K:\MSSQL\INDEX\Branch_Index\Branch_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Branch_Index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Lookup_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Lookup_Data
+            ,FILENAME = 'H:\SQL Server\MSSQL\DATA\Data\Lookup_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Lookup_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Lookup_Index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Lookup_Index
+            ,FILENAME = 'J:\SQL Server\MSSQL\INDEX\Index\Lookup_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Lookup_Index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Invoice_Attachment_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Invoice_Attachment_Data
+            ,FILENAME = 'I:\SQL Server\MSSQL\DATA\Invoice_Attachment_Data\Invoice_Attachment_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Invoice_Attachment_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Invoice_Attachment_index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Invoice_Attachment_index
+            ,FILENAME = 'K:\SQL Server\MSSQL\INDEX\Invoice_Attachment_Index\Invoice_Attachment_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Invoice_Attachment_index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Detail_Enrich_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Detail_Enrich_Data
+            ,FILENAME = 'H:\SQL Server\MSSQL\DATA\Detail_Enrich_Data\Detail_Enrich_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Detail_Enrich_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Detail_Enrich_Index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Detail_Enrich_Index
+            ,FILENAME = 'J:\SQL Server\MSSQL\INDEX\Detail_Enrich_Index\Detail_Enrich_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Detail_Enrich_Index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Header_Enrich_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Header_Enrich_Data
+            ,FILENAME = 'I:\SQL Server\MSSQL\DATA\Header_Enrich_Data\Header_Enrich_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Header_Enrich_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Header_Enrich_Index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Header_Enrich_Index
+            ,FILENAME = 'K:\SQL Server\MSSQL\INDEX\Header_Enrich_Index\Header_Enrich_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Header_Enrich_Index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Invoice_Log_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Invoice_Log_Data
+            ,FILENAME = 'H:\SQL Server\MSSQL\DATA\Invoice_Log_Data\Invoice_Log_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Invoice_Log_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Invoice_Log_index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Invoice_Log_index
+            ,FILENAME = 'J:\SQL Server\MSSQL\INDEX\Invoice_Log_Index\Invoice_Log_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Invoice_Log_index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Labour_Detail_Enrich_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Labour_Detail_Enrich_Data
+            ,FILENAME = 'I:\SQL Server\MSSQL\DATA\Labour_Detail_Enrich_Data\Labour_Detail_Enrich_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Labour_Detail_Enrich_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Labour_Detail_Enrich_index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Labour_Detail_Enrich_index
+            ,FILENAME = 'K:\SQL Server\MSSQL\INDEX\Labour_Detail_Enrich_Index\Labour_Detail_Enrich_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Labour_Detail_Enrich_index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Order_Detail_ERP_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Order_Detail_ERP_Data
+            ,FILENAME = 'H:\SQL Server\MSSQL\DATA\Order_Detail_ERP_Data\Order_Detail_ERP_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Order_Detail_ERP_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Order_Detail_ERP_Index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Order_Detail_ERP_Index
+            ,FILENAME = 'J:\SQL Server\MSSQL\INDEX\Order_Detail_ERP_Index\Order_Detail_ERP_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Order_Detail_ERP_Index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Order_Header_ERP_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Order_Header_ERP_Data
+            ,FILENAME = 'I:\SQL Server\MSSQL\DATA\Order_Header_ERP_Data\Order_Header_ERP_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Order_Header_ERP_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Order_Header_ERP_Index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Order_Header_ERP_Index
+            ,FILENAME = 'K:\SQL Server\MSSQL\INDEX\Order_Header_ERP_Index\Order_Header_ERP_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Order_Header_ERP_Index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Tab_Invoices_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Tab_Invoices_Data
+            ,FILENAME = 'I:\SQL Server\MSSQL\DATA\Tab_Invoices_Data\Tab_Invoices_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Tab_Invoices_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Tab_Invoices_Index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Tab_Invoices_Index
+            ,FILENAME = 'K:\SQL Server\MSSQL\INDEX\Tab_Invoices_Index\Tab_Invoices_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Tab_Invoices_Index
+GO
+
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Document_Logging_Data;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Document_Logging_Data
+            ,FILENAME = 'H:\SQL Server\MSSQL\DATA\Document_Logging_Data\Document_Logging_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Document_Logging_Data
+GO
+ALTER DATABASE [EDI]  
+    ADD FILEGROUP Document_Logging_Index;  
+    GO
+    ALTER DATABASE [EDI]
+    ADD FILE (NAME = Document_Logging_Index
+            ,FILENAME = 'J:\SQL Server\MSSQL\INDEX\Document_Logging_Index\Document_Logging_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 1MB)
+    TO FILEGROUP Document_Logging_Index
+GO

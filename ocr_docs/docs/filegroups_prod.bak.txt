@@ -1,0 +1,255 @@
+
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Batch_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Batch_Data
+            ,FILENAME = 'H:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Batch_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Batch_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Batch_Index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Batch_Index
+            ,FILENAME = 'J:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Batch_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Batch_Index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Batch_Invoices_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Batch_Invoices_Data
+            ,FILENAME = 'H:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Batch_Invoices_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Batch_Invoices_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Batch_Invoices_Index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Batch_Invoices_Index
+            ,FILENAME = 'J:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Batch_Invoices_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Batch_Invoices_Index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Branch_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Branch_Data
+            ,FILENAME = 'I:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Branch_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Branch_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Branch_Index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Branch_Index
+            ,FILENAME = 'K:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Branch_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Branch_Index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Lookup_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Lookup_Data
+            ,FILENAME = 'H:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Lookup_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Lookup_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Lookup_Index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Lookup_Index
+            ,FILENAME = 'J:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Lookup_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Lookup_Index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Invoice_Attachment_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Invoice_Attachment_Data
+            ,FILENAME = 'I:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Invoice_Attachment_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Invoice_Attachment_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Invoice_Attachment_index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Invoice_Attachment_index
+            ,FILENAME = 'K:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Invoice_Attachment_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Invoice_Attachment_index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Detail_Enrich_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Detail_Enrich_Data
+            ,FILENAME = 'H:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Detail_Enrich_Data.ndf'
+            ,SIZE = 2135MB
+            ,FILEGROWTH = 128MB)
+    TO FILEGROUP Detail_Enrich_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Detail_Enrich_Index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Detail_Enrich_Index
+            ,FILENAME = 'J:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Detail_Enrich_Index.ndf'
+            ,SIZE = 2135MB
+            ,FILEGROWTH = 128MB)
+    TO FILEGROUP Detail_Enrich_Index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Header_Enrich_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Header_Enrich_Data
+            ,FILENAME = 'I:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Header_Enrich_Data.ndf'
+            ,SIZE = 1977MB
+            ,FILEGROWTH = 128MB)
+    TO FILEGROUP Header_Enrich_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Header_Enrich_Index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Header_Enrich_Index
+            ,FILENAME = 'K:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Header_Enrich_Index.ndf'
+            ,SIZE = 1977MB
+            ,FILEGROWTH = 128MB)
+    TO FILEGROUP Header_Enrich_Index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Invoice_Log_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Invoice_Log_Data
+            ,FILENAME = 'H:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Invoice_Log_Data.ndf'
+            ,SIZE = 815MB
+            ,FILEGROWTH = 64MB)
+    TO FILEGROUP Invoice_Log_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Invoice_Log_index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Invoice_Log_index
+            ,FILENAME = 'J:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Invoice_Log_Index.ndf'
+            ,SIZE = 815MB
+            ,FILEGROWTH = 64MB)
+    TO FILEGROUP Invoice_Log_index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Labour_Detail_Enrich_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Labour_Detail_Enrich_Data
+            ,FILENAME = 'I:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Labour_Detail_Enrich_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Labour_Detail_Enrich_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Labour_Detail_Enrich_index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Labour_Detail_Enrich_index
+            ,FILENAME = 'K:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Labour_Detail_Enrich_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Labour_Detail_Enrich_index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Order_Detail_ERP_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Order_Detail_ERP_Data
+            ,FILENAME = 'H:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Order_Detail_ERP_Data.ndf'
+            ,SIZE = 3917MB
+            ,FILEGROWTH = 64MB)
+    TO FILEGROUP Order_Detail_ERP_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Order_Detail_ERP_Index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Order_Detail_ERP_Index
+            ,FILENAME = 'J:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Order_Detail_ERP_Index.ndf'
+            ,SIZE = 3917MB
+            ,FILEGROWTH = 64MB)
+    TO FILEGROUP Order_Detail_ERP_Index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Order_Header_ERP_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Order_Header_ERP_Data
+            ,FILENAME = 'I:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Order_Header_ERP_Data.ndf'
+            ,SIZE = 835MB
+            ,FILEGROWTH = 128MB)
+    TO FILEGROUP Order_Header_ERP_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Order_Header_ERP_Index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Order_Header_ERP_Index
+            ,FILENAME = 'K:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Order_Header_ERP_Index.ndf'
+            ,SIZE = 835MB
+            ,FILEGROWTH = 128MB)
+    TO FILEGROUP Order_Header_ERP_Index
+GO
+
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Tab_Invoices_Data;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Tab_Invoices_Data
+            ,FILENAME = 'I:\MSSQL\AP_Power_Invoice_Prodbckp_Data\Tab_Invoices_Data.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Tab_Invoices_Data
+GO
+ALTER DATABASE [Ap_Invoice_Import]  
+    ADD FILEGROUP Tab_Invoices_Index;  
+    GO
+    ALTER DATABASE [Ap_Invoice_Import]
+    ADD FILE (NAME = Tab_Invoices_Index
+            ,FILENAME = 'K:\MSSQL\AP_Power_Invoice_Prodbckp_Indexes\Tab_Invoices_Index.ndf'
+            ,SIZE = 5MB
+            ,FILEGROWTH = 4MB)
+    TO FILEGROUP Tab_Invoices_Index
+GO
+
+

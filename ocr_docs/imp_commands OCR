@@ -1,0 +1,348 @@
+sudo systemctl restart celery_dev.worker{1..4}
+- to restart celery workers for dev env
+
+sudo -u www-data /media/data/www/mms/ocr.matmgt.com/.venv/bin/python /media/data/www/mms/ocr.matmgt.com/src/manage.py shell
+
+- run the shell for prod env
+
+rabbit MQ management
+http://52.129.118.36:15672/  admin   hm8GVJqprs9R28JZ
+
+names of celery services:
+sudo systemctl restart celery.ocr-dev2.matmgt.com.service
+/etc/systemd/system/celery.ocr.matmgt.com.service
+
+
+Hi,  Please find the Status update for 11/03/2022.  Work Done Today:
+
+Ashwani:
+-Work on frontend ticket -Worked on db optimization -Met with Richard and team  -Fixed ocr issue
+
+
+Ayushi - Worked on Enrichment | If Freight/Other is added as a line automatically to make it 0 in the header and apply corresponding feature
+- Testing of cash discount feature on stage.
+- Checked issues reported by Darina.
+- Met with Richard and team for Weekly meeting.
+
+
+Sib: - Met with Richard for the weekly meeting.
+- Met with MF team for the PI issues.
+- Investigate issues reported in slack.
+- Worked on some fixes for ticket #13256.
+- Checked the SQL query performance.
+
+
+Asha:
+- Worked on debugging issue in transferring order config files via FTP.
+- Researching on ways to optimize SQL queries with Sib.
+- Met with Richard and team for weekly meeting.
+
+Work Planned Next:  Ashwani     - Work on assigned tickets.
+Ayushi     - Will be working on priority tickets assigned 
+Sib:     - Work on assigned tickets.
+
+Thanks & Regards,
+Ashwani Gaur
+
+
+
+
+Gооd dаy!  rhizomespace.com 
+ 
+Did yоu knоw thаt it is pоssiblе tо sеnd rеquеst еntirеly lеgit? 
+Wе put а nеw lеgаl mеthоd оf sеnding businеss оffеr thrоugh fееdbасk fоrms. Suсh fоrms аrе lосаtеd оn mаny sitеs. 
+Whеn suсh lеttеrs аrе sеnt, nо pеrsоnаl dаtа is usеd, аnd mеssаgеs аrе sеnt tо fоrms spесifiсаlly dеsignеd tо rесеivе mеssаgеs аnd аppеаls. 
+аlsо, mеssаgеs sеnt thrоugh fееdbасk Fоrms dо nоt gеt intо spаm bесаusе suсh mеssаgеs аrе соnsidеrеd impоrtаnt. 
+Wе оffеr yоu tо tеst оur sеrviсе fоr frее. Wе will sеnd up tо 50,000 mеssаgеs fоr yоu. 
+Thе соst оf sеnding оnе milliоn mеssаgеs is 49 USD. 
+ 
+This lеttеr is сrеаtеd аutоmаtiсаlly. Plеаsе usе thе соntасt dеtаils bеlоw tо соntасt us. 
+ 
+Contact us. 
+Telegram - @FeedbackMessages 
+Skype  live:contactform_18 
+WhatsApp - +375259112693 
+We only use chat.
+
+
+import { findIndex } from "lodash";
+import { ensurePluginOrder } from "react-table";
+import { enrichInvoice } from "../../../src/actions/Enrichment";
+import { getTagsList } from "../../../src/actions/Invoices";
+
+
+useEffect(() => {
+        props.setLineItemsCheckBox({
+            ...props.lineItemsCheckBox,
+            ['ApplyLumpSum'] : true
+        })
+    }, []);
+
+
+Ashwani
+- work on frontend issue fix 
+- work on pin apply lumpsum
+- work on test route invoices
+- Meet with team
+
+Todo
+- work and test assigned tickets
+
+
+USE AP_Invoice_Import_Staging;
+select count(*) from Tabs;
+17
+
+USE AP_Invoice_Import_Staging;
+select count(*) from [Batches];
+3787
+
+
+USE AP_Invoice_Import_Staging;
+select count(*) from [BatchInvoices];
+
+10024
+
+USE AP_Invoice_Import_Staging;
+select count(*) from [BranchAccountingSettingOptions]
+
+792
+
+
+USE AP_Invoice_Import_Staging;
+select * from [BranchAccountingSettings];
+select count(*) from [BranchAccountingSettings];
+
+1552
+
+
+USE AP_Invoice_Import_Staging;
+select * from [BranchAccountingSettingValues];
+select count(*) from [BranchAccountingSettingValues];
+489
+
+USE AP_Invoice_Import_Staging;
+select * from [BranchDefaultAccountingSettings];
+select count(*) from [BranchDefaultAccountingSettings];
+
+62
+
+USE AP_Invoice_Import_Staging;
+select * from [CustomerBranches];
+select count(*) from [CustomerBranches];
+123
+
+
+
+USE AP_Invoice_Import_Staging;
+select * from [CustomerOrganizations];
+select count(*) from [CustomerOrganizations];
+97
+
+
+USE AP_Invoice_Import_Staging;
+select * from [Invoice_Attachments];
+select count(*) from [Invoice_Attachments];
+
+162
+
+Done
+USE AP_Invoice_Import_Staging;
+select * from [Invoice_Detail_Enrich];
+select count(*) from [Invoice_Detail_Enrich];
+4883297
+
+
+
+Invoicelog (Done)
+USE AP_Invoice_Import_Staging;
+select * from [INVOICELOG];
+select count(*) from [INVOICELOG];
+1443244
+
+
+Labour details enrich (Done)
+
+USE AP_Invoice_Import_Staging;
+select * from [Labor_Detail_Enrich];
+select count(*) from [Labor_Detail_Enrich];
+2248
+
+
+popurchase order details erp (done)
+USE AP_Invoice_Import_Staging;
+select * from [PO_PURCHASE_ORDER_DETAIL_ERP];
+select count(*) from [PO_PURCHASE_ORDER_DETAIL_ERP];
+757413
+757413
+
+
+popurchase order header erp (done)
+
+USE AP_Invoice_Import_Staging;
+select * from [PO_PURCHASE_ORDER_HEADER_ERP];
+select count(*) from [PO_PURCHASE_ORDER_HEADER_ERP];
+31928
+
+
+Resources (Done)
+USE AP_Invoice_Import_Staging;
+select * from [Resources];
+select count(*) from [Resources];
+33
+
+
+TabInvoices (Done)
+USE AP_Invoice_Import_Staging;
+select * from [Tab_Invoices];
+select count(*) from [Tab_Invoices];
+673
+
+
+Tags (Done)
+USE AP_Invoice_Import_Staging;
+select * from [Tags];
+select count(*) from [Tags];
+18
+
+
+Users (Done)
+USE AP_Invoice_Import_Staging;
+select * from [Users];
+select count(*) from [Users];  
+334
+
+
+git tag -a PI1.0.11 1.0.11
+git push origin PI1.0.11
+
+1C4021067
+
+with invoice_log_cte as (
+    select count(*) as aggregate 
+ from [dbo].[Invoice_Header_Enrich] 
+ inner join [CustomerBranches] on [Invoice_Header_Enrich].[BRANCH_ID] = [CustomerBranches].[ClientId] 
+ left join [InvoiceLog] on [Invoice_Header_Enrich].[SUPPLIER_INVOICE_NUMBER] = [INVOICELOG].[INVOICENO] and [Invoice_Header_Enrich].[TRANSACTION_TO] = [INVOICELOG].[CONTRACTORID] 
+ left join [Tab_Invoices] on [Tab_Invoices].[InvoiceId] = [Invoice_Header_Enrich].[ID] 
+ where [Status] in (@P1, @P2) and ([CustomerOrganizationId] = @P3 and [IsEnabled] = @P4 and [CustomerBranches].[IsDeleted] = @P5) and INVOICELOG.LOGID = (select top 1 LOGID from INVOICELOG 
+                      where INVOICENO = [Invoice_Header_Enrich].[SUPPLIER_INVOICE_NUMBER]
+                      and INVOICELOG.DISTRIBUTORID = Invoice_Header_Enrich.TRANSACTION_FROM
+                      and INVOICELOG.CONTRACTORID = Invoice_Header_Enrich.TRANSACTION_TO
+                      ORDER BY IMAGESENT DESC, LOGID DESC) and [Tab_Invoices].[TabId] is null and [Invoice_Header_Enrich].[BRANCH_ID] in (@P6, @P7)
+)
+
+
+select top 10 [Invoice_Header_Enrich].[ID], [TRANSACTION_TO], [BRANCH_ID], [TagId], [AssignedToId], [SUPPLIER_INVOICE_NUMBER], [PO_NUMBER] as [po_number], [JOB_NUMBER] as [job_number], [JOB_NAME] as [job_name], [SUPPLIER] as [supplier_name], [DATE_INVOICED] as [invoice_date], [PROCESSED_DT] as [received_date], CASE
+                   WHEN TOTAL_INVOICE_AMT != ''
+                   	THEN CAST(TOTAL_INVOICE_AMT AS NUMERIC(15,4))
+                   ELSE 0
+                END 
+                AS total_invoice_amt, [TRANSACTION_FROM] as [supplier_id], [Status], [FREIGHT_AMT], [OTHER_CHARGE_AMT], [DISTRIBUTOR_QUOTE_NUMBER], [TAX_AMT], [Note], [VENDOR_NUMBER], [PO_EXIST], [INVOICE_EXIST], [PRICE_SOURCE], [SUPPLIER_ORDER_NUMBER], [AUTO_VALIDATED], [RECEIVED_DT], [DUPLICATE_PO], [IMAGESENT], [FILENAME] as [imageFile], [PROCESSTIME] as [imageSentTime] 
+                from invoice_log_cte order by [Invoice_Header_Enrich].[ID] desc
+
+                select count(*) as aggregate 
+ from invoice_log_cte
+
+
+
+
+                      [Invoice_Header_Enrich].[BRANCH_ID]  (Need)
+                      [CustomerBranches].[ClientId] (Done)
+                      [Invoice_Header_Enrich].[SUPPLIER_INVOICE_NUMBER] (Need)
+                      [INVOICELOG].[INVOICENO] (Need to check)
+                      [Invoice_Header_Enrich].[TRANSACTION_TO] (Done)
+                      [Invoice_Header_Enrich].[TRANSACTION_FROM] (Done)
+                      [INVOICELOG].[CONTRACTORID] (Done)
+                      [Tab_Invoices].[InvoiceId] (Done)
+                      [Invoice_Header_Enrich].[ID] (check)
+                      [Invoice_Header_Enrich]
+                      [Status] (Done)
+                      [CustomerOrganizationId] (Need)
+                      INVOICELOG.LOGID (Need)
+                      INVOICELOG.DISTRIBUTORID (Done)
+                      [Tab_Invoices].[TabId] (Done)
+                      [Invoice_Header_Enrich].[ID] (Key)
+
+                      [BRANCH_ID]
+CREATE INDEX [IX_InvoiceHeaderEnrich_BRANCH_ID] ON [dbo].[Invoice_Header_Enrich] ([BRANCH_ID])
+ ON [Header_Enrich_Index]
+go
+
+CREATE INDEX [IX_InvoiceHeaderEnrich_SUPPLIER_INVOICE_NUMBER] ON [dbo].[Invoice_Header_Enrich] ([SUPPLIER_INVOICE_NUMBER])
+ ON [Header_Enrich_Index]
+go
+
+CREATE INDEX [IX_InvoiceHeaderEnrich_CustomerOrganizationId] ON [dbo].[Invoice_Header_Enrich] ([CustomerOrganizationId])
+ ON [Header_Enrich_Index]
+go
+
+CREATE INDEX [IX_InvoiceLog_INVOICENO] ON [dbo].[INVOICELOG] ([INVOICENO])
+ ON [Invoice_Log_index]
+go
+
+CREATE INDEX [IX_InvoiceLog_LOGID] ON [dbo].[INVOICELOG] ([LOGID])
+ ON [Invoice_Log_index]
+go
+
+
+Same as top one 
+select count(*) as aggregate 
+ from invoice_log_cte
+
+
+Not needed for now 
+select top 1 * from [jobs] with(rowlock,updlock,holdlock) where [queue] = @P1 and (([reserved_at] is null and [available_at] <= @P2) or ([reserved_at] <= @P3)) order by [id] asc
+
+
+select [ID] as [InvoiceDetailID], [Header_ID], [DESCRIPTION] as [Description], [HOURS_REG] as [HoursReg], [EXT_REG] as [ExtReg], [HOURS_OT] as [HoursOT], [EXT_OT] as [ExtOT], [HOURS_DT] as [HoursDT], [EXT_DT] as [ExtDT], [SUPPLIER_UOM] as [UM], [JOB_NUMBER] as [JobNumber], [JOB_NAME] as [JobName], [COST_CENTER] as [CostCenter], [COST_TYPE] as [CostType], [GL_CODE] as [GLNumber], [PHASE_CODE] as [PhaseCode], [Division], [UPC], [TOTAL] as [Extension], [LABOR_BILL_CODE] as [LaborBillCode], [TM_MESSAGE] as [TMMessage], [RECEIVED_DT] as [ReceivedDate], [PROCESSED_DT] as [ProcessedDate], [SQL_filename] as [SQLFilename], [Status], [IsDeleted], [TaxTable] as [TaxTableCode], [TaxRate], [TaxAmount], [IsValid], [UpdatedOn], [Priority], [TaxAsLine], [SUPPLIER_ITEM_NUMBER] as [ItemCode], [CUSTOMER_ITEM_NUMBER] as [BuyerCode], [MFG_ITEM_NUMBER] as [CatalogNumber], [UpdatedOn], [IsLumpSum], [LINE_TYPE] as [LineType] 
+from [dbo].[Labor_Detail_Enrich] 
+where [dbo].[Labor_Detail_Enrich].[Header_ID] in (2795826) and [IsDeleted] = @P1 order by [Priority] asc, [ID] asc
+
+[Labor_Detail_Enrich].[Header_ID]
+[Labor_Detail_Enrich].[Priority]
+
+CREATE INDEX [IX_LabourDetailEnrich_Priority] ON [dbo].[Labor_Detail_Enrich] ([Priority])
+ ON [Labour_Detail_Enrich_index]
+go
+
+with invoice_log_cte as (
+    select * 
+ from [dbo].[Invoice_Header_Enrich] 
+ inner join [CustomerBranches] on [Invoice_Header_Enrich].[BRANCH_ID] = [CustomerBranches].[ClientId] 
+ left join [InvoiceLog] on [Invoice_Header_Enrich].[SUPPLIER_INVOICE_NUMBER] = [INVOICELOG].[INVOICENO] and [Invoice_Header_Enrich].[TRANSACTION_TO] = [INVOICELOG].[CONTRACTORID] 
+ left join [Tab_Invoices] on [Tab_Invoices].[InvoiceId] = [Invoice_Header_Enrich].[ID] 
+ where [Status] in (1) and ([CustomerOrganizationId] = '672ABA6B-7976-4998-999E-CD401AF4A8B7' and [IsEnabled] = 1 and [CustomerBranches].[IsDeleted] = 0) and INVOICELOG.LOGID = (select top 1 LOGID from INVOICELOG 
+                      where INVOICENO = [Invoice_Header_Enrich].[SUPPLIER_INVOICE_NUMBER]
+                      and INVOICELOG.DISTRIBUTORID = Invoice_Header_Enrich.TRANSACTION_FROM
+                      and INVOICELOG.CONTRACTORID = Invoice_Header_Enrich.TRANSACTION_TO
+                      ORDER BY IMAGESENT DESC, LOGID DESC) and [Tab_Invoices].[TabId] is null and [Invoice_Header_Enrich].[BRANCH_ID] in ('1111111111')
+)
+
+with invoice_log_cte as (
+    select * 
+ from [dbo].[Invoice_Header_Enrich] 
+ inner join [CustomerBranches] on [Invoice_Header_Enrich].[BRANCH_ID] = [CustomerBranches].[ClientId] 
+ left join [InvoiceLog] on [Invoice_Header_Enrich].[SUPPLIER_INVOICE_NUMBER] = [INVOICELOG].[INVOICENO] and [Invoice_Header_Enrich].[TRANSACTION_TO] = [INVOICELOG].[CONTRACTORID] 
+ left join [Tab_Invoices] on [Tab_Invoices].[InvoiceId] = [Invoice_Header_Enrich].[ID] 
+ where [Status] in (1) and ([CustomerOrganizationId] = '672ABA6B-7976-4998-999E-CD401AF4A8B7' and [IsEnabled] = 1 and [CustomerBranches].[IsDeleted] = 0) and INVOICELOG.LOGID = (select top 1 LOGID from INVOICELOG 
+                      where INVOICENO = [Invoice_Header_Enrich].[SUPPLIER_INVOICE_NUMBER]
+                      and INVOICELOG.DISTRIBUTORID = Invoice_Header_Enrich.TRANSACTION_FROM
+                      and INVOICELOG.CONTRACTORID = Invoice_Header_Enrich.TRANSACTION_TO
+                      ORDER BY IMAGESENT DESC, LOGID DESC) and [Tab_Invoices].[TabId] is null and [Invoice_Header_Enrich].[BRANCH_ID] in ('1111111111')
+)
+select *, (select count(*) as countt FROM invoice_log_cte) as x from invoice_log_cte
+
+
+
+
+document_logging
+USE AP_Invoice_Import_Staging;
+select * from [document_logging];
+select count(*) from [document_logging]; 
+348,175,296
+
+Invoice header Enrich (done)
+USE AP_Invoice_Import_Staging;
+select * from [Invoice_Header_Enrich];
+select count(*) from [Invoice_Header_Enrich];
+1361556

@@ -1,0 +1,97 @@
+-- =============================================  -- Author:  <Author,,John Roper>  -- Create date: <Create Date,,10/20/2022>  -- Description: <Description,,sync between power invoice staging and accoutn sync>   -- accountsync data -> power invoice  -- =============================================  create PROCEDURE [dbo].[update_document_logging]   -- Add the parameters for the stored procedure here    AS  BEGIN  /****** Script for SelectTopNRows command from SSMS  ******/            Declare @header_date nvarchar(200)    Declare @detail_date nvarchar(200)    Declare @PO_data_date nvarchar(200)      set @header_date = (  select max(inserted_into_invoices) from [document_logging]    Where document_type = 'invoice_header'  )        set @detail_date = (  select max(inserted_into_invoices) from [document_logging]    Where document_type = 'invoice_Detail'  )          set @PO_data_date = (  select max(inserted_into_invoices) from [document_logging]    Where document_type = 'order_data'  )         insert into document_logging         select TRANSACTION_TO, TRANSACTION_FROM, CompanyCode,SUPPLIER_INVOICE_NUMBER,'invoice_header',PROCESSED_DT,Create_Date,null,null,null,null from [AP_Invoice_Import_EDI].dbo.Invoice_Header    inner join CustomerBranches on ClientId = TRANSACTION_TO    Where Create_Date > @header_date            insert into document_logging        select TRANSACTION_TO, TRANSACTION_FROM, CompanyCode,SUPPLIER_INVOICE_NUMBER,'invoice_Detail',Invoice_Detail.PROCESSED_DT,Invoice_Detail.Create_Date,null,null,null,null from [AP_Invoice_Import_EDI].dbo.Invoice_Detail    inner join [AP_Invoice_Import_EDI].dbo.Invoice_Header on Invoice_Header.id = Header_ID    inner join CustomerBranches on ClientId = TRANSACTION_TO    Where Invoice_Detail.Create_Date > @detail_date             insert into document_logging           select null,TRANSACTION_FROM,Company_Code,PO_PURCHASE_ORDER_HEADER_ERP.PO_Number,'order_data',null,PO_PURCHASE_ORDER_HEADER_ERP.PO_ENTRY_DT,null,null,null,null from PO_PURCHASE_ORDER_HEADER_ERP    inner join [AP_Invoice_Import_EDI].dbo.Invoice_Header on PRICE_SOURCE = Vendor_Code    where PO_ENTRY_DT > @PO_data_date            END
+
+
+2
+
+upper(trim([PO_NUMBER])) -> convert when insert 
+status not <> (use in )
+select [ID] from [dbo].[Invoice_Header_Enrich] where (upper(trim([PO_NUMBER])) = @P1 and [Status] <> @P2 and [Status] <> @P3 and [BRANCH_ID] = @P4) order by [ID] desc
+---------------------------------
+CREATE INDEX [IX_InvoiceHeaderEnrich_PO_NUMBER] ON [dbo].[Invoice_Header_Enrich] ([PO_NUMBER])
+ ON [Header_Enrich_Index]
+go
+
+select [ID] from [dbo].[Invoice_Header_Enrich] where (upper(trim([PO_NUMBER])) = @P1 and [BRANCH_ID] = @P4 and [Status] <> @P2 and [Status] <> @P3 ) order by [ID] desc
+
+Change order of branch ID before Status (move branch ahead of po_number)
+---------------------------------
+
+3
+select top 1 [ID], [DetailId], [Header_ID] from [dbo].[Invoice_Detail_Enrich] order by [DetailId] desc
+
+---------------------------------
+
+Need to change this - rearchitect this query
+
+select top 1 [ID], [DetailId], [Header_ID] from [dbo].[Invoice_Detail_Enrich] order by [DetailId] desc
+
+CREATE INDEX [IX_InvoiceHDetailEnrich_DetailId] ON [dbo].[Invoice_Detail_Enrich] ([DetailId])
+ ON [Detail_Enrich_Index]
+go
+
+-- need to discuss this in team meeting
+
+---------------------------------
+
+4
+-- =============================================  -- Author:  <Author,,John Roper>  -- Create date: <Create Date,,6/7/2022>  -- Description: <Description,,sync between power invoice staging and accoutn sync>   -- accountsync data -> power invoice  -- =============================================        CREATE Procedure [dbo].[spGetInvoicesNotExist_array]  @List varchar(max)   as  Begin      --Declare @NumberOfMonth int  Declare @invoice_number nvarchar(200)  Declare @price_source nvarchar(200)  Declare @gsid nvarchar(200)  Declare @counter int  Declare @check_counter int  Declare @updated_counter int    --set @NumberOfMonth = 1        Set  @check_counter = 0  Set  @updated_counter = 0        -- Step 1. selecting invoices which have invoice exists=0 From that array     Declare cur CURSOR LOCAL for    SELECT      Invoice_Header_Enrich.SUPPLIER_INVOICE_NUMBER,      Invoice_Header_Enrich.PRICE_SOURCE,   Invoice_Header_Enrich.TRANSACTION_TO    FROM Invoice_Header_Enrich    WHERE      Invoice_Header_Enrich.INVOICE_EXIST = 0      AND Invoice_Header_Enrich.SUPPLIER_INVOICE_NUMBER in (select trim(translate(value, '[]''','   ')) as test From string_split(@List, ','))       --  Step 2. Start Cursor to flow through the list      Open cur    FETCH FROM cur INTO @invoice_number, @price_source, @gsid      WHILE @@FETCH_STATUS = 0        BEGIN    -- Step 3. connecting to MMSFOF useing the Linked Server in SSMS    -- Step 3.1 See if the current invoice_number, @price_source, @gsid is in the tables below      --Spectrum.VN_GL_DISTRIBUTION_HEADER_MC, Spectrum.VN_INVOICE_APPROVAL_HDR_MC, Spectrum.VN_INVOICE_TRAN_HEADER_MC      set @counter = (select count(*) from [192.168.50.179].[MMSFOF].[Spectrum].[VN_GL_DISTRIBUTION_HEADER_MC]     inner join  [192.168.50.179].[MMSFOF].[dbo].[Customer_Organization] on Customer_Organization.id =  Customer_Organization_ID    Where GSID = @gsid    AND Invoice_Number = @invoice_number    ANd Vendor_Code = @price_source)      IF @counter < 0     begin      set @counter = (select count(*) from [192.168.50.179].[MMSFOF].[Spectrum].[VN_INVOICE_APPROVAL_HDR_MC]     inner join  [192.168.50.179].[MMSFOF].[dbo].[Customer_Organization] on Customer_Organization.id =  Customer_Organization_ID    Where GSID = @gsid    AND Invoice_Number = @invoice_number    ANd Vendor_Code = @price_source)      end      IF @counter < 0     begin      set @counter = (select count(*) from [192.168.50.179].[MMSFOF].[Spectrum].[VN_INVOICE_TRAN_HEADER_MC]     inner join  [192.168.50.179].[MMSFOF].[dbo].[Customer_Organization] on Customer_Organization.id =  Customer_Organization_ID    Where GSID = @gsid    AND Invoice_Number = @invoice_number    ANd Vendor_Code = @price_source)      end       --Step 3.2 check if the counter is greater than 0 if so invoice exsists      IF @counter > 0    Begin   -- NOTE: to check if the invoice exists or not in these tables we need the Invoice Number, Vendor Code and GSID      -- Step 3.3 Update the Invoice exists result into Invoice_Header_Enrich table       update Invoice_Header_Enrich     Set INVOICE_EXIST = 1     Where SUPPLIER_INVOICE_NUMBER = @invoice_number     AND PRICE_SOURCE = @price_source     AND TRANSACTION_TO = @gsid       set @updated_counter = @updated_counter + 1     --print 'Number Updated Current: ' + CAST(@updated_counter  As nvarchar)    End        set @check_counter =  @check_counter + 1    --print 'Number Checked Current: ' + CAST(@check_counter As nvarchar)      FETCH NEXT FROM cur into    @invoice_number, @price_source, @gsid      END      --Close Cursor    CLOSE cur  DEALLOCATE cur    print 'Number Checked Total: ' + CAST(@check_counter As nvarchar)  print 'Number Updated Total: ' + CAST(@updated_counter  As nvarchar)    End        
+
+5
+select top 50 [Invoice_Header_Enrich].[ID], [TRANSACTION_TO], [BRANCH_ID], [TagId], [AssignedToId], [SUPPLIER_INVOICE_NUMBER], [PO_NUMBER] as [po_number], [JOB_NUMBER] as [job_number], [JOB_NAME] as [job_name], [SUPPLIER] as [supplier_name], [DATE_INVOICED] as [invoice_date], [PROCESSED_DT] as [received_date], CASE                    WHEN TOTAL_INVOICE_AMT != ''                     THEN CAST(TOTAL_INVOICE_AMT AS NUMERIC(15,4))                    ELSE 0                 END                  AS total_invoice_amt, [TRANSACTION_FROM] as [supplier_id], [Status], [FREIGHT_AMT], [OTHER_CHARGE_AMT], [DISTRIBUTOR_QUOTE_NUMBER], [TAX_AMT], [Note], [VENDOR_NUMBER], [PO_EXIST], [INVOICE_EXIST], [PRICE_SOURCE], [SUPPLIER_ORDER_NUMBER], [AUTO_VALIDATED], [RECEIVED_DT], [DUPLICATE_PO], [IMAGESENT], [FILENAME] as [imageFile], [PROCESSTIME] as [imageSentTime] from [dbo].[Invoice_Header_Enrich] inner join [CustomerBranches] on [Invoice_Header_Enrich].[BRANCH_ID] = [CustomerBranches].[ClientId] left join [InvoiceLog] on [Invoice_Header_Enrich].[SUPPLIER_INVOICE_NUMBER] = [INVOICELOG].[INVOICENO] and [Invoice_Header_Enrich].[TRANSACTION_FROM] = [INVOICELOG].[DISTRIBUTORID] left join [Tab_Invoices] on [Tab_Invoices].[InvoiceId] = [Invoice_Header_Enrich].[ID] where [Status] in (@P1, @P2) and ([CustomerOrganizationId] = @P3 and [IsEnabled] = @P4 and [CustomerBranches].[IsDeleted] = @P5) and INVOICELOG.LOGID = (select top 1 LOGID from INVOICELOG                        where INVOICENO = [Invoice_Header_Enrich].[SUPPLIER_INVOICE_NUMBER]                       and INVOICELOG.DISTRIBUTORID = Invoice_Header_Enrich.TRANSACTION_FROM                       ORDER BY IMAGESENT DESC, LOGID DESC) and [Tab_Invoices].[TabId] is null and [Invoice_Header_Enrich].[BRANCH_ID] in (@P6, @P7, @P8, @P9, @P10, @P11) order by [Invoice_Header_Enrich].[ID] desc
+
+6
+ select top 1 * from [jobs] with(rowlock,updlock,holdlock) where [queue] = @P1 and (([reserved_at] is null and [available_at] <= @P2) or ([reserved_at] <= @P3)) order by [id] asc
+-- ============================================= 
+
+ CREATE INDEX [IX_Jobs_queue] ON [dbo].[Jobs] ([queue])
+ ON [Lookup_Index]
+go
+
+Alternative queries -> 
+select top 1 from (select top 1 * from [jobs] with(rowlock,updlock,holdlock) where [queue] = @P1 and (([reserved_at] is null and [available_at] <= @P2) UNION select top 1 * from [jobs] with(rowlock,updlock,holdlock) where [queue] = @P1 and ([reserved_at] <= @P3)) t order by [id] asc;
+-- ============================================= 
+
+7
+-- =============================================  -- Author:  <Author,,John Roper>  -- Create date: <Create Date,,6/7/2022>  -- Description: <Description,,sync between power invoice staging and accoutn sync>   -- accountsync data -> power invoice  -- =============================================        CREATE Procedure [dbo].[spGetInvoicesNotExist_array]  @List varchar(max)   as  Begin      --Declare @NumberOfMonth int  Declare @invoice_number nvarchar(200)  Declare @price_source nvarchar(200)  Declare @gsid nvarchar(200)  Declare @counter int  Declare @check_counter int  Declare @updated_counter int    --set @NumberOfMonth = 1        Set  @check_counter = 0  Set  @updated_counter = 0        -- Step 1. selecting invoices which have invoice exists=0 From that array     Declare cur CURSOR LOCAL for    SELECT      Invoice_Header_Enrich.SUPPLIER_INVOICE_NUMBER,      Invoice_Header_Enrich.PRICE_SOURCE,   Invoice_Header_Enrich.TRANSACTION_TO    FROM Invoice_Header_Enrich    WHERE      Invoice_Header_Enrich.INVOICE_EXIST = 0      AND Invoice_Header_Enrich.SUPPLIER_INVOICE_NUMBER in (select trim(translate(value, '[]''','   ')) as test From string_split(@List, ','))       --  Step 2. Start Cursor to flow through the list      Open cur    FETCH FROM cur INTO @invoice_number, @price_source, @gsid      WHILE @@FETCH_STATUS = 0        BEGIN    -- Step 3. connecting to MMSFOF useing the Linked Server in SSMS    -- Step 3.1 See if the current invoice_number, @price_source, @gsid is in the tables below      --Spectrum.VN_GL_DISTRIBUTION_HEADER_MC, Spectrum.VN_INVOICE_APPROVAL_HDR_MC, Spectrum.VN_INVOICE_TRAN_HEADER_MC      set @counter = (select count(*) from [192.168.50.179].[MMSFOF].[Spectrum].[VN_GL_DISTRIBUTION_HEADER_MC]     inner join  [192.168.50.179].[MMSFOF].[dbo].[Customer_Organization] on Customer_Organization.id =  Customer_Organization_ID    Where GSID = @gsid    AND Invoice_Number = @invoice_number    ANd Vendor_Code = @price_source)      IF @counter < 0     begin      set @counter = (select count(*) from [192.168.50.179].[MMSFOF].[Spectrum].[VN_INVOICE_APPROVAL_HDR_MC]     inner join  [192.168.50.179].[MMSFOF].[dbo].[Customer_Organization] on Customer_Organization.id =  Customer_Organization_ID    Where GSID = @gsid    AND Invoice_Number = @invoice_number    ANd Vendor_Code = @price_source)      end      IF @counter < 0     begin      set @counter = (select count(*) from [192.168.50.179].[MMSFOF].[Spectrum].[VN_INVOICE_TRAN_HEADER_MC]     inner join  [192.168.50.179].[MMSFOF].[dbo].[Customer_Organization] on Customer_Organization.id =  Customer_Organization_ID    Where GSID = @gsid    AND Invoice_Number = @invoice_number    ANd Vendor_Code = @price_source)      end       --Step 3.2 check if the counter is greater than 0 if so invoice exsists      IF @counter > 0    Begin   -- NOTE: to check if the invoice exists or not in these tables we need the Invoice Number, Vendor Code and GSID      -- Step 3.3 Update the Invoice exists result into Invoice_Header_Enrich table       update Invoice_Header_Enrich     Set INVOICE_EXIST = 1     Where SUPPLIER_INVOICE_NUMBER = @invoice_number     AND PRICE_SOURCE = @price_source     AND TRANSACTION_TO = @gsid       set @updated_counter = @updated_counter + 1     --print 'Number Updated Current: ' + CAST(@updated_counter  As nvarchar)    End        set @check_counter =  @check_counter + 1    --print 'Number Checked Current: ' + CAST(@check_counter As nvarchar)      FETCH NEXT FROM cur into    @invoice_number, @price_source, @gsid      END      --Close Cursor    CLOSE cur  DEALLOCATE cur    print 'Number Checked Total: ' + CAST(@check_counter As nvarchar)  print 'Number Updated Total: ' + CAST(@updated_counter  As nvarchar)    End        
+
+8
+update [dbo].[CustomerBranches] set [ClientId] = @P1, [ClientName] = @P2, [CustomerOrganizationId] = @P3, [IsEnabled] = @P4, [CreatedOn] = @P5, [UpdatedOn] = @P6, [TenantAlias] = @P7, [Address1] = @P8, [Address2] = @P9, [City] = @P10, [CreatedBy] = @P11, [IsDeleted] = @P12, [Phone] = @P13, [State] = @P14, [UpdatedBy] = @P15, [ZipCode] = @P16, [HeaderApCostCenter] = @P17, [ContactPersonId] = @P18, [GSID] = @P19, [Notes] = @P20 where ([ClientId] = @P21)
+
+------------------------
+CREATE INDEX [IX_CustomerBranches_ClientId] ON [dbo].[CustomerBranches] ([ClientId])
+ ON [Lookup_Index]
+go
+--------------------------
+
+9
+select top 1 1 [exists] from [dbo].[CustomerBranches] where ([ClientId] = @P1)
+
+--------------------------
+Index client id should work 
+
+----------------------------
+
+10
+select [BrDeAcSe].[Id] as [Id], [CustomerBranchId], [BranchDefaultAccountingSettingId], [BrDeAcSe].[IsSet] as [IsSet], [BrDeAcSe].[Name], [Description], [ParentId], [AccountingType], [Code], [ApplicationId], [HasValue], [AcSy].[Id] as [AccountingSystemId], [AcSy].[Name] as [AccountingSystemName] from [dbo].[BranchAccountingSettings] inner join [BranchDefaultAccountingSettings] as [BrDeAcSe] on [BrDeAcSe].[Id] = [BranchAccountingSettings].[BranchDefaultAccountingSettingId] inner join [AccountingSystems] as [AcSy] on [AcSy].[Id] = [BrDeAcSe].[AccountingType] where ([CustomerBranchId] = @P1 and [ApplicationId] = @P2 and [AccountingType] = @P3)
+
+--------------------------------------------
+
+11
+update [dbo].[CustomerOrganizations] set [Name] = @P1, [IsEnabled] = @P2, [CreatedBy] = @P3, [CreatedOn] = @P4, [UpdatedBy] = @P5, [UpdatedOn] = @P6, [IsDeleted] = @P7, [IsPIEnabled] = @P8, [IsPOEnabled] = @P9, [ContactPersonId] = @P10, [GSID] = @P11, [Address] = @P12, [Address2] = @P13, [City] = @P14, [Logo] = @P15, [Notes] = @P16, [PostalCode] = @P17, [State] = @P18 where ([Id] = @P19)
+
+---------------------------------------
+
+12
+select top 1 * from [dbo].[Users] where [dbo].[Users].[Id] = @P1
+
+
+---------------------------------------
+
+13
+select top 1 1 [exists] from [dbo].[CustomerOrganizations] where ([Id] = @P1)
+ try select MAX(id)+1 for this below query 
+select top 1 [ID], [DetailId], [Header_ID] from [dbo].[Invoice_Detail_Enrich] order by [DetailId] desc
+detail id index 
+
+(@P1 nvarchar(4000),@P2 nvarchar(4000),@P3 nvarchar(4000),@P4 nvarchar(4000))select [ID] from [dbo].[Invoice_Header_Enrich] where (upper(trim([PO_NUMBER])) = @P1 and [Status] <> @P2 and [Status] <> @P3 and [BRANCH_ID] = @P4) order by [ID] desc
+

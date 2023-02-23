@@ -1,0 +1,86 @@
+def image_to_text(resize_image):
+    """
+    Filtering the image passed to the function and then passes it to image_to_string of tesseract to get the string
+    output.
+    :param resize_image: The image whose text is to be extracted.
+    :return: Text extracted from the image.
+    """
+    logger.info("Filtering the image and extracting text from it.")
+    h, w = resize_image.shape[:2]
+
+    resize_image = cv2.resize(
+        resize_image, (int(filter_params["width_multiplier"] * w), int(filter_params["height_multiplier"] * h)),
+        interpolation=cv2.INTER_CUBIC
+    )
+    resize_image = cv2.GaussianBlur(resize_image, (filter_params["kernel_size"], filter_params["kernel_size"]),
+                                    filter_params["x_deviation"])
+    resize_image = cv2.threshold(resize_image, 20, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+
+    resize_image = cv2.erode(resize_image, np.ones((3, 3), np.uint8), iterations=1)
+
+    resize_image = cv2.bilateralFilter(resize_image, filter_params["bilateral_param_1"],
+                                       filter_params["bilateral_param_2"], filter_params["bilateral_param_3"])
+
+    resize_image = cv2.copyMakeBorder(resize_image, filter_params["border_top"], filter_params["border_bottom"],
+                                      filter_params["border_left"], filter_params["border_right"], cv2.BORDER_CONSTANT,
+                                      value=255)
+
+    text = pytesseract.image_to_string(resize_image, config="--psm 10", lang="eng")
+
+    logger.info("Successfully filtered the image and extracting text from it.")
+    return text
+    
+======================================================================================
+
+def remove_lines(img):
+    """
+    Remove long straight lines from the image(invoice page) which create problem while tesseract operation.
+    :param img: The image that has to be filtered.
+    :return: Filtered image.
+    """
+
+    edges_img = cv2.Canny(img, 100, 180, apertureSize=5)
+
+    min_line_length = 80
+
+    lines = cv2.HoughLinesP(image=edges_img, rho=1, theta=np.pi / 180, threshold=200, lines=np.array([]),
+                            minLineLength=min_line_length)
+
+    a, b, c = lines.shape
+
+    for i in range(a):
+        cv2.line(img, (lines[i][0][0], lines[i][0][1]), (lines[i][0][2], lines[i][0][3]), (255, 255, 255), 3,
+                 cv2.LINE_AA)
+
+    return img
+    
+====================================================================
+    
+    
+def remove_dotted_background(img):
+    """
+    Removes the dotted backgrounds from the invoice(mostly is dot-matrix format) which creates problems while creating
+    dynamic json.
+    :param img: The image to be filtered
+    :return: The filtered image
+    """
+
+    _, thresh = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY_INV)
+    logger.info("Thresholded the image to Binary Inverse.")
+
+    nlabels, labels, stats, centroids = cv2.connectedComponentsWithStats(thresh, None, None, None, 8, cv2.CV_32S)
+    sizes = stats[1:, -1]
+    img2 = np.zeros(labels.shape, np.uint8)
+
+    for i in range(0, nlabels - 1):
+        if sizes[i] >= 10:
+            img2[labels == i + 1] = 255
+
+    res = cv2.bitwise_not(img2)
+    logger.info("Found out all the small points from the image and then removed them by changing their pixel value to "
+                "255")
+
+    return res
+    
+    
+

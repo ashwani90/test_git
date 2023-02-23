@@ -1,0 +1,588 @@
+OWNER: 
+TicketID:
+Dependency: 
+Blocked: 
+ETA: 
+Notes: 
+
+Mcqmvssxs4a4fdpyMySW
+
+481  git remote set-url origin2 git@git.mooseworldwidedigital.com:MindFire/AP_Invoice_Frontend.git
+  482  git branch -r | grep -v '\->' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
+  483  git branch
+  484  git pull --all
+  485  git remote remove origin
+  486  git remote set-url origin git@git.mooseworldwidedigital.com:MindFire/AP_Invoice_Frontend.git
+  487  sudo git remote add origin https://git.mooseworldwidedigital.com/MindFire/AP_Invoice_Frontend.git
+  488  git push REMOTE '*:*'
+  489  git push origin '*:*'
+  490  git push REMOTE --all
+  491  git push origin --all
+
+Ashwani
+- Fix issue with showing errors
+- Work on lumpsum issue
+- Sync with team for issues
+- Check expensive queries 
+- Meet with team for issues
+
+
+Merge into Query_Logs tar
+	USING (SELECT TOP(10) t.text AS [Complete Query Text],
+	(qs.total_worker_time)/1000.0 AS [Total Worker Time (ms)],
+	(qs.total_elapsed_time)/1000.0 AS [Total Elapsed Time (ms)],
+	(qs.total_worker_time/qs.execution_count)/1000.0 AS [Avg Worker Time (ms)],
+	qs.creation_time AS [Creation Time]
+	FROM sys.dm_exec_query_stats AS qs WITH (NOLOCK)
+	CROSS APPLY sys.dm_exec_sql_text(plan_handle) AS t
+	CROSS APPLY sys.dm_exec_query_plan(plan_handle) AS qp
+	WHERE t.dbid = DB_ID('AP_Invoice_Import_Staging') 
+	ORDER BY [Avg Worker Time (ms)] DESC) s
+	ON s.[Complete Query Text] = tra.Query
+	WHEN MATCHED THEN
+		Update Query_Logs Set Total_elapsed_time = s.[Total Elapsed Time (ms)]
+	WHEN NOT MATCHED BY tar THEN
+		INSERT Query_Logs(Query,Total_worker_time,Total_elapsed_time,Creation_time,Plan_hash)
+		Values(s.[Complete Query Text],s.[Total Worker Time (ms)],s.[Total Elapsed Time (ms)],s.[Creation Time],s.[Avg Worker Time (ms)]);
+
+
+SELECT TOP(10) qs.execution_count AS [Execution Count],
+(qs.total_logical_reads)*8/1024.0 AS [Total Logical Reads (MB)],
+(qs.total_logical_reads/qs.execution_count)*8/1024.0 AS [Avg Logical Reads (MB)],
+(qs.total_worker_time)/1000.0 AS [Total Worker Time (ms)],
+(qs.total_worker_time/qs.execution_count)/1000.0 AS [Avg Worker Time (ms)],
+(qs.total_elapsed_time)/1000.0 AS [Total Elapsed Time (ms)],
+(qs.total_elapsed_time/qs.execution_count)/1000.0 AS [Avg Elapsed Time (ms)],
+qs.creation_time AS [Creation Time]
+,t.text AS [Complete Query Text], qp.query_plan AS [Query Plan]
+FROM sys.dm_exec_query_stats AS qs WITH (NOLOCK)
+CROSS APPLY sys.dm_exec_sql_text(plan_handle) AS t
+CROSS APPLY sys.dm_exec_query_plan(plan_handle) AS qp
+WHERE t.dbid = DB_ID(‘AP_Invoice_Import’)
+--ORDER BY qs.execution_count DESC OPTION (RECOMPILE);-- frequently ran query
+-- ORDER BY [Total Logical Reads (MB)] DESC OPTION (RECOMPILE);-- High Disk Reading query
+ ORDER BY [Avg Worker Time (ms)] DESC OPTION (RECOMPILE);-- High CPU query
+-- ORDER BY [Avg Elapsed Time (ms)] DESC OPTION (RECOMPILE);-- Long Running query
+
+Todo
+- Work on assigned issues
+
+git branch -r | grep -v '\->' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
+git branch
+git pull --all
+git remote remove origin
+git remote add origin git@git.mooseworldwidedigital.com:MindFire/Ocr.git
+
+git push origin '*:*'
+git push origin --all
+
+poopsiewuvsmindfire
+
+
+- Improve Exception handling (-)
+- Even if we catch exception we are simply printing. Please log errors (S)
+- we have logging but please channelize it (S)
+- Serializers have been used for validation and restricting access (+)
+- Add more meaning full comments and remove out commented code (S)
+- Also there are some print statements (for debugging I assume) (-)
+- We can move generic constants at one central place (S)
+- We should have an env variable to handle this (S)
+        if 'staging' in host_name:
+            origin = 'https://staging-app.roadcall.co/'
+        else:
+            origin = 'https://app.roadcall.co/' 
+         
+- Add logging for stripe payment api calls (-)
+- Add Exception handling  Notifications.objects.bulk_create(data) 
+Or anywhere you are making third party api calls. Also add logging (like sendbird apis) (-)
+- Bulk create has been used (+)
+- try to use design patterns to solve recurring problems (such as there are multiple places OOPS principels could be used) (S)
+- url = 'https://maps.googleapis.com/maps/api/distancematrix/json?' -> please not use hardcoded values (S)
+- please keep your controllers/views light (S)
+- please dig into this lambda: create_stripe_customer.delay(
+                name=user.get_full_name(),
+                email=user.email,
+                phone=user.phone,
+                roadcall_id=user.roadcall_id
+            ) -> it is making query in loop (S)
+- We created different settings file for different envs (+)
+- We can use middlewares more (S)
+- ShipmentRetrieve -> get -> please monitor the number of queries this api is making and if optimizations can be done (S)
+
+Will check this later on 
+I won’t get it right now
+Need to check queries first
+
+We have employees belonging to departments and employees are assigned projects.
+
+Mindagaur!0618
+
+ssh ashwanig@52.129.118.36
+Miag*0618
+
+52.129.118.50
+52.129.118.52
+
+frmStartup
+basStartup -. Modules
+
+ ---- sudo a2dissite invoices.matmgt.com
+ ------ sudo a2ensite  invoices.matmgt.com
+---- sudo a2ensite invoices-api.matmgt.com
+ ---- sudo service apache2 restart
+
+Git hub token. -> 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
+
+1. create new branch(eg: issue_branch) for issue from power_invoice_prod
+2. Merge with power_invoice_dev and push and build dev server
+3. After successful manual test on DEV. Merge issue_branch with power_invoice_stage and build on server
+4. Assign ticket to Tester for testing
+5. After ticket is passed by tester merge and  push issue_branch to power_invoice_prod on release
+
+https://invoices-stage.matmgt.com/login
+https://invoices.matmgt.com/login
+https://invoices-dev.matmgt.com/
+
+— storage/app/invoice-image-transfer-log/InvoiceImageTransferLog.csv
+
+Ashwani
+- Check ticket on stage
+- Work on file group script
+- Check db issues with team
+- Sync with team on pdf issue
+- Work on query optimise
+- Test in stage after switching db
+
+Todo
+- Work on assigned tickets
+
+Git pull origin 
+
+Windows local user: agaur
+Password: 3aG4hAn5F@r2t5!
+
+
+{"uuid":"0733af3a-8ee6-4da6-9279-e425a38ad1f5","displayName":"App\\Jobs\\MarkDuplicatePO","job":"Illuminate\\Queue\\CallQueuedHandler@call","maxTries":null,"maxExceptions":null,"backoff":null,"timeout":null,"retryUntil":null,"data":{"commandName":"App\\Jobs\\MarkDuplicatePO","command":"O:24:\"App\\Jobs\\MarkDuplicatePO\":14:{s:35:\"\u0000App\\Jobs\\MarkDuplicatePO\u0000invoiceId\";s:7:\"2992169\";s:34:\"\u0000App\\Jobs\\MarkDuplicatePO\u0000poNumber\";s:7:\"7076263\";s:34:\"\u0000App\\Jobs\\MarkDuplicatePO\u0000branchId\";s:10:\"8006593511\";s:40:\"\u0000App\\Jobs\\MarkDuplicatePO\u0000invoiceUtility\";O:28:\"App\\Utilities\\InvoiceUtility\":1:{s:13:\"exceptionFile\";s:18:\"queueException.log\";}s:3:\"job\";N;s:10:\"connection\";N;s:5:\"queue\";N;s:15:\"chainConnection\";N;s:10:\"chainQueue\";N;s:19:\"chainCatchCallbacks\";N;s:5:\"delay\";N;s:11:\"afterCommit\";N;s:10:\"middleware\";a:0:{}s:7:\"chained\";a:0:{}}"}}
+Ashakiran@0307
+
+ —— php artisan pdf-transfer:log
+
+{"uuid":"3928d944-d3a8-4706-a094-609747d4ca40","displayName":"App\\Jobs\\TransferInvoicePDFToFtp","job":"Illuminate\\Queue\\CallQueuedHandler@call","maxTries":null,"maxExceptions":null,"backoff":null,"timeout":null,"retryUntil":null,"data":{"commandName":"App\\Jobs\\TransferInvoicePDFToFtp","command":"O:32:\"App\\Jobs\\TransferInvoicePDFToFtp\":14:{s:7:\"invoice\";a:35:{s:2:\"ID\";i:2992889;s:20:\"INITIAL_PROCESS_DATE\";s:0:\"\";s:12:\"PROCESSED_DT\";s:27:\"2023-02-14 04:43:46.5770000\";s:16:\"TRANSACTION_FROM\";s:10:\"7012935834\";s:23:\"SUPPLIER_INVOICE_NUMBER\";s:9:\"925785373\";s:9:\"BRANCH_ID\";s:10:\"8169210033\";s:9:\"PO_NUMBER\";s:6:\"174575\";s:13:\"DATE_INVOICED\";s:8:\"02\/13\/23\";s:7:\"GL_DATE\";N;s:9:\"ERP_NOTES\";N;s:18:\"TOTAL_DISCOUNT_AMT\";s:4:\"0.16\";s:15:\"ClosePOOnExport\";b:0;s:28:\"ClosePOOnNoQuantityRemaining\";b:0;s:20:\"ForceErrorCorrection\";b:0;s:11:\"RoutingCode\";N;s:14:\"TRANSACTION_TO\";s:10:\"8169210033\";s:16:\"AppliedAsLumpSum\";b:0;s:24:\"DISTRIBUTOR_QUOTE_NUMBER\";N;s:13:\"VENDOR_NUMBER\";s:10:\"7012935834\";s:11:\"VENDOR_NAME\";s:22:\"BORDER STATES ELECTRIC\";s:10:\"JOB_NUMBER\";s:6:\"122222\";s:8:\"JOB_NAME\";s:0:\"\";s:11:\"TAX_PERCENT\";s:1:\"0\";s:13:\"PAYMENT_TERMS\";N;s:17:\"ACTUAL_NET_AMOUNT\";s:8:\"7.850000\";s:14:\"ACTUAL_TAX_AMT\";s:7:\".000000\";s:19:\"ACTUAL_GROSS_AMOUNT\";s:8:\"7.850000\";s:15:\"SHIP_TO_STREET1\";s:0:\"\";s:12:\"SHIP_TO_CITY\";s:0:\"\";s:13:\"SHIP_TO_STATE\";s:0:\"\";s:11:\"SHIP_TO_ZIP\";s:0:\"\";s:12:\"INVOICE_TYPE\";N;s:28:\"ExportLinesWithoutValidation\";b:0;s:16:\"PAYMENT_DUE_DATE\";s:0:\"\";s:15:\"invoice_details\";a:1:{i:0;a:19:{s:2:\"ID\";i:10587744;s:9:\"Header_ID\";s:7:\"2992889\";s:7:\"PO_LINE\";s:0:\"\";s:10:\"BUYER_CODE\";N;s:20:\"CUSTOMER_ITEM_NUMBER\";s:0:\"\";s:20:\"SUPPLIER_ITEM_NUMBER\";s:7:\"1722521\";s:3:\"UPC\";s:12:\"786776189827\";s:14:\"CATALOG_NUMBER\";s:0:\"\";s:8:\"QUANTITY\";s:1:\"0\";s:6:\"BILLED\";s:1:\"5\";s:14:\"PRICE_EXTENDED\";s:4:\"7.85\";s:8:\"TaxTable\";N;s:7:\"TaxType\";N;s:10:\"TAX_AMOUNT\";s:1:\"0\";s:11:\"DESCRIPTION\";s:32:\"WH2006 STL COVER CLIP 2000 WHITE\";s:14:\"PRICE_PER_UNIT\";s:4:\"1.57\";s:12:\"SUPPLIER_UOM\";s:2:\"EA\";s:9:\"IsLumpSum\";b:0;s:9:\"LINE_TYPE\";s:1:\"I\";}}}s:13:\"applicationId\";s:1:\"2\";s:16:\"accountingSystem\";b:1;s:25:\"maintainStatusRecordInCSV\";b:1;s:3:\"job\";N;s:10:\"connection\";N;s:5:\"queue\";s:10:\"invoicePDF\";s:15:\"chainConnection\";N;s:10:\"chainQueue\";N;s:19:\"chainCatchCallbacks\";N;s:5:\"delay\";N;s:11:\"afterCommit\";N;s:10:\"middleware\";a:0:{}s:7:\"chained\";a:0:{}}"}}
+
+2957929-00
+
+Name: MMSVPN
+Server: south.matmgt.com
+Port: 55881
+Username: suprateek
+Password: 77D83*djuUei#
+
+ocr@materialmanagementinc.com		H3r32!j0Hnny
+poackocr@materialmanagementinc.com	T0t0inK@n2@2
+renameocr@materialmanagementinc.com	R0s3Bud?k@Ne
+splitocr@materialmanagementinc.com	S0Y3ntg^R33n
+quoteocr@materialmanagementinc.com	Jax10026!
+
+ocr prod web : https://ocr.matmgt.com/home/
+stage web : https://ocr-dev2.matmgt.com/home/
+IP stage and prod : 52.129.118.36
+
+OCR prod and stage : ocr_admin 
+pass : admin
+
+sudo /media/data/www/mms/ocr.matmgt.com/src/runscript.sh split_rename_ocr_email_parser
+
+
+sudo -u www-data /media/data/www/mms/ocr.matmgt.com/.venv/bin/python /media/data/www/mms/ocr.matmgt.com/src/manage.py runscript tasks
+
+
+*/5 * * * * /media/data/www/mms/ocr.matmgt.com/src/runscript.sh tasks
+*/5 * * * * /media/data/www/mms/ocr.matmgt.com/src/runscript.sh po_mail_parser
+*/5 * * * * /media/data/www/mms/ocr.matmgt.com/src/runscript.sh split_rename_ocr_email_parser
+0 * * * * /media/data/www/mms/ocr.matmgt.com/src/runscript.sh move_back_to_inbox
+0 1 * * * /media/data/www/mms/ocr.matmgt.com/src/runscript.sh remove_old_invoices_and_textfiles
+0 2 * * * /media/data/www/mms/ocr.matmgt.com/src/runscript.sh check_and_reprocess
+*/15 * * * * /media/data/www/mms/ocr.matmgt.com/src/runscript.sh quote_mail_parser
+
+1. Measure the current perfomrace in terms of time.
+2. we need to request the sys admin for 3 more virtual drive for staging. ssd would be nice.
+3. create file goups for EDI Data and indexes and enriched invoices. its going to be 8 file groups. the data on one drive and indexes on another.
+4. determine the write numbers for group eg 64, 128 etc.
+5. Migrate the current data to the new structres.
+6. need to look at every where clause and need to build indexes or compund indexes.
+measure the performance again. 
+
+
+Python 
+- Multithreading - no
+- Apis - no
+git tag -a AP-v1.0.11
+
+git push origin AP-v1.0.11
+
+
+Ashwani
+- Run scripts on prod copy
+- Work on ap issue
+- Sync with Ashakiran for db changes
+- Met with team
+
+git tag -a [tag] [commit ID]
+git push origin [tag]
+
+
+
+Turn off crons
+Put site in maintenance
+Take backup of the database
+Run scripts
+Turn on crons
+Put site back up 
+
+
+var staticCacheName = 'djangopwa-v1';
+
+const filesToCache = [
+  '/',
+  'templates/home.html'
+];
+
+self.addEventListener('install', function(event) {
+  event.waitUntil(
+    caches.open(staticCacheName).then(function(cache) {
+      return cache.addAll(filesToCache);
+    })
+  );
+});
+
+self.addEventListener('fetch', function(event) {
+  var requestUrl = new URL(event.request.url);
+    if (requestUrl.origin === location.origin) {
+      if ((requestUrl.pathname === '/')) {
+        event.respondWith(caches.match('/'));
+        return;
+      }
+    }
+    event.respondWith(
+      caches.match(event.request).then(function(response) {
+        return response || fetch(event.request);
+      })
+    );
+});
+
+Master and attach a slave to it
+
+index.js -> 2368 line
+1318 -> function call
+onSaveInvoice -> need to change this function (add key)
+
+Ashwani
+- Work on 13228
+- Sync with sib for frontend changes
+- Sync with team on issues
+- Sync with Ayushi for api integration  Todo - Work on assigned tickets 
+
+
+ Project Name - QBS Invoicer
+Duration - 2 weeks
+
++ Good practice
+S Suggestions
+- Negative (Needs improvement)
+
+Templates 
+- Should be optimized (S)
+- Move constants values to constants python file (S)
+- On success ajax call please do not refresh page (-)
+- Have used base templates (+)
+
+Models / Queries
+- Models usage is good (+)
+- Please do not fetch everything and slice it (-)
+
+Views 
+- Class based views can be used when possible (S)
+- Update method can be optimized (S)
+- Filters are used properly (+)
+
+Quickbooks Integration 
+- Please move constants to another file (S)
+- We should add logging to the project (S)
+- Improve exception handling and log errors (S)
+
+
+
+ayushig@mindfiresolutions.com
+pw - Kontrol@9009
+
+
+
+Sib:
+- Met with Richard for the weekly meeting.
+- Met with MF team for the PI issues.
+- Investigate issues reported in slack.
+- Worked on some fixes for ticket #13256.
+- Checked the SQL query performance.
+
+todo:
+- Work on assigned tickets.
+
+Asha:
+
+- Worked on debugging issue in transferring order config files via FTP.
+- Researching on ways to optimize SQL queries with Sib.
+- Met with Richard and team for weekly meeting.
+
+Ayushi
+
+
+- Worked on Enrichment | If Freight/Other is added as a line automatically to make it 0 in the header and apply corresponding feature
+- Testing of cash discount feature on stage.
+- Checked issues reported by Darina.
+- Met with Richard and team for Weekly meeting.
+
+Work planned next
+
+Ayushi
+
+- Will be working on priority tickets assigned.
+
+Hi,  Please find the Status update for 11/03/2022.  Work Done Today:
+Ashwani:
+-Work on frontend ticket -Worked on db optimization -Met with Richard and team  -Fixed ocr issue
+
+Ayushi   - Worked on Enrichment | "Create Order Conf file with Highlighted Lines" (button) - Met with Sib to discuss about PI issues. - Debugging issues reported by Lorna. - Met with Richard and team for Weekly meeting.
+
+Sib: - Worked on ticket #12646. - BE code moved to dev server for testing. - Met with Oleg and Alan for the DB discussion. - Met with Richard for the weekly meeting.
+
+Work Planned Next:  Ashwani     - Work on assigned tickets.
+Ayushi     - Will be working on priority tickets assigned.  Sib:          - Work on assigned tickets.
+
+Thanks & Regards,
+Ayushi Gaur
+
+Look for setup of react from scratch
+Redux structure and what It means
+
+
+
+ssh ashwani_gaur@pod5-service1-001.gcp.brightedge.com
+ssh ashwani_gaur@pod5-service1-002.gcp.brightedge.com
+ssh ashwani_gaur@pod5-service1-003.gcp.brightedge.com
+
+
+cat /var/log/brightedge/service.log-20220111 | grep "step 1: construct cache key took"
+cat /var/log/brightedge/service.log-20220111 | grep "missing component id "
+
+https://app5.brightedge.com/service_ui/dashboard_ui/ajax_get_page_group_from_account/221371/
+
+
+ssh -o "ServerAliveInterval 60" ashwani_gaur@command-console1-001.gcp.brightedge.com
+
+login : mgr_js_for_qa@brightedge.com
+password: optiweber80
+Www-nginx1-003
+nabendu.karmakar@fractal.ai
+
+creating ansible for i x-apache
+pdsh -w "ix-apache1-001.gcp.brightedge.com ix-apache1-101.gcp.brightedge.com ix-apache1-201.gcp.brightedge.com ix-apache1-301.gcp.brightedge.com"
+pdsh -w "lem-solr1-001.gcp.brightedge.com lem-solr1-002.gcp.brightedge.com lem-solr1-003.gcp.brightedge.com lem-solr1-004.gcp.brightedge.com lem-solr1-005.gcp.brightedge.com"
+
+they should be monitored by monitor-proxy0-003.brightedge.com zabbix-proxy and we shouldn't get any false alerts
+
+
+Please tell me about what tech skills you can work with / are good with? 
+
+Hi I am Ashwani Gaur, working as a senior software engineer with 5 years of experience. I work as a full stack engineer having experience with technologies such as Django python and react majorly. In past I have also worked with php and its frameworks. But for past two years I have been working with Django. I have developed projects with Django from scratch. Using Django at the backend and React on the frontend is my expertise. I have developed admin portals using Django-admin as well.
+
+Describe one of your recent projects 
+Recently I was working in a project which was a SEO portal where we help our customers to optimise their website and improve their reach to the consumers. Measure their own traffic as well as compare themselves to their competitors. The module I worked with were to create charts and dashboards for the users to visualise data. We had Apis build up in Django and frontend in react. Also we worked with customer support team to gather work items and resolve live customer issue. We would get product enhancement requirements directly from customers and we will work on them. I worked with a team of 5 developers to develop these modules and we used Jira to track requests.
+
+Before that I was working with a project where we had gift cards which users will buy and spend on registered stores. We created a portal and exposed APIs to do the transactions. We created generic reports with all the data for sales team. 
+
+As a developer we develop products that are reliable and scalable and we write our code following design patterns and using correct data structures.  
+
+ashakiranm@mindfiresolutions.com/logMeInGithub.0
+77Uyll%rTe23
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+103.211.189.65
+
+hqvpn.brightedge.com
+
+My Updates For the day
+CTIQ-929 -> 
+	Checked all other pages and their datasets needed
+	Added datasets to the code
+CTIQ-533 -> 
+	Add new rule to datasets for site audit page
+	Checking changes needed for enable external broken links
+	
+Abcd
+
+Automated API testing with postman using collections: Use where unit testing is not feasible and convert your postman requests to tests.
+
+Follow these videos -> https://www.youtube.com/watch?v=pi9MxX0HSHU 
+
+https://www.youtube.com/watch?v=nhY481EGMro 
+
+
+cat /var/log/brightedge/service.log | grep "step 1: construct cache key took" | grep westpac_au
+
+More on collections and testing -> https://www.postman.com/collection/ 
+
+URL_SAFE_CHARACTERS = ";/?:@&=+"
+
+
+git fetch "ssh://prod@git.brightedge.com:29418/optiweber3" refs/changes/22/197822/1 && git cherry-pick FETCH_HEAD
+
+Checked dashboards in risers account for default filters
+ Worked on CTIQ-1074 added URL decode functionality to recommendations module
+    Worked on handling foreign language characters along with special characters to show in UI
+    Committed code for CTIQ-1074 and checked on staging for all mentioned UI
+
+- Checked the working of details page in all errors page
+- Inserted data into table used for details page and checked in external broken links page
+- Worked on adding external broken links option in all pages page
+
+- Will check the details page on staging
+
+
+copy the message
+press shift + > in input box
+paste
+enter -> enter
+
+username: dbuser
+pass: 789qwert
+
+38101
+
+Explain meaning demystified -> id -> it is the sequential identifier of the select query being ran within our queryselect_type -> Simple -> simple query without any subquery or unions      primary -> select is in the outmost query or with the join      derived -> select query is a subquery within the from tag of the query      subquery -> first select is in the subquery      dependent subquery -> a query which is dependent on the outer subquery      uncacheable query -> a query which is not cacheable      union -> the select is the second or the later query in the union query      dependent union -> the second query is dependent on the outer query      union result -> select is a result of the uniontable -> the table name from which the data is fetchedtype -> mysql joins the tables used      system -> the table has one or zero column      const -> the table only scans the given index and there is only one matching record to our condition.      columns value can be considered as constant      eq_ref -> all indexes are being used either the join is on the primary id or unique not null value.       ref -> all columns of the index are scanned and then based on that records are fetched. generally occurs when where condition is = <=>.      fulltext -> the join uses the fulltext index of the table      ref_or_null -> same as row but also contains the null values for the column      index_merge -> will tell that a number of indexes are used      unique_subquery -> a subquery only returns a single record and uses the primary key      index_subquery -> same as above just returns multiple records.      range -> the index is run for a range of values within the specific range      index -> the whole index tree is searched and then result is fetched      all – the entire table is scanned to find matching rows for the join. This is the worst join type and usually indicates the lack of appropriate indexes on the table.possible_keys -> shows the keys that can be used by MySQL to find rows from the table, though they may or may not be used in practice. In fact, this column can often help in optimizing queries since if the column is NULL, it indicates no relevant indexes could be found.key -> used keyskey_len -> length of the key that is being usedref -> Shows the columns or constants that are compared to the index named in the key column. MySQL will either pick a constant value to be compared or a column itself based on the query execution plan. You can see this in the example given below.rows -> number of rows scannedExtra – contains additional information regarding the query execution plan. Values such as “Using temporary”, “Using filesort”, etc. in this column may indicate a troublesome query. You can also add the keyword EXTENDED after EXPLAIN in your query and MySQL will show you additional information about the way it executes the query. To see the information, follow your EXPLAIN query with SHOW WARNINGS. 
+
+12074 -> today
+
+
+ajax_get_filter_value_map
+UID: qa_gds@brightedge.com
+PWD: Password123!
+
+
+Dead silence
+
+For me -> 
+Changes in reds code in php for use local reds
+Check 500 error bql data
+Sync with qa on testing in qa tickets
+
+
+
+Since in the second call the returned cursor is 0, the server signaled to the caller that the iteration finished, and the collection was completely explored. Starting an iteration with a cursor value of 0, and calling SCAN until the returned cursor is 0 again is called a full iteration.
+useDbConf
+
+const myAr = [1,2,1,1,2,3,3,2,2];
+function findMaxDuplicate(arr) {
+	sortedArray = myAr.sort();
+  let arrayBreakpoints = [];
+  for(let i=0;i<arr.length-1;i++) {
+  	if (arrayBreakPoints[arr[i]] == undefined) {
+    	arrayBreakPoints[arr[i]] = 1;
+    } else {
+    	arrayBreakPoints[arr[i]] += 1;
+    }
+  }
+  
+  
+  161/160
+}
+7906366900
+
+
+Hi Richard,
+
+Please find the Status Update for  02/20/2023:
+
+Work Done Today:
+
+Ashwani:
+5 hours
+- Work on MMS-13606
+- Test MMS-13606 on dev
+
+3 hours
+- Sync with team for BE tasks
+- Met with alan and oleg for db invoices
+- Met with oleg and lorna
+
+1 hour
+- Check frontend issues
+- Debug pdf transfer with Sibananda
+
+Ayushi:
+6 Hours
+- Worked on #13396 and deployed changes on dev for testing
+- Checked #13687 and added description as per requirement of ticket.
+- Debugged #13631 and started working on this.
+- Checked requirement for #13639.
+
+2 Hours
+- Met with Oleg and team for Daily meet.
+- Met with MF team to discuss issues and changes required.
+
+Sib:
+4 hours
+- Met with Alan and team for the PDF flow pseudo code changes.
+- Met with the MMS team for the daily meeting.
+- Met with Asha and Ashwani for the BE tickets.
+- Verify existing information for PDF transfers.
+- Check the update the Pseudo code for PDF flow changes.
+4 hours
+- Working on ticket #13673.
+
+Asha:
+2  hours:
+- Worked on ticket#13612.
+
+4 hours:
+- Debugging issue with ticket#13276.
+- Debugging issue and preparing report for ticket#13669.
+
+3 hours:
+- Met with Sib for update on tasks and distribute BE tasks.
+- Met with Alan and team for DB discussion.
+- Met with Oleg and team for daily meeting.
+
+Work Planned Next:
+
+Ashwani:
+- Work on assigned tickets
+
+Ayushi:
+- Will be working on priority tickets assigned
+
+Sib:
+- Work on assigned tickets.
+
+Asha:
+- Work on priortiy tickets.
+
+
+Thanks & Regards,
+~ Asha 
+
+
